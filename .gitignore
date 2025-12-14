@@ -1,3 +1,27 @@
+## Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+crash.*.log
+*.tfplan
+.terraform.lock.hcl
+
+## Local overrides
+*.tfvars.local
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+## CLI configuration files
+.terraformrc
+terraform.rc
+
+## OS/editor
+.DS_Store
+.idea/
+.vscode/
 # Local .terraform directories
 .terraform/
 
