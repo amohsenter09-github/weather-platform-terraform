@@ -10,7 +10,8 @@ module "networking" {
   source  = "cn-terraform/networking/aws"
   version = "3.0.1"
 
-  cidr_block = var.vpc_cidr
+  cidr_block           = var.vpc_cidr
+  enable_dns_hostnames = true
 
   public_subnets  = local.public_subnets
   private_subnets = local.private_subnets
