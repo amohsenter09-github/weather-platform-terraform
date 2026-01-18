@@ -4,7 +4,9 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = ">= 5.0"
+      # NOTE: This repo uses terraform-aws-modules/eks, which currently expects
+      # aws_launch_template schema compatible with AWS provider v5.x.
+      version = ">= 5.0, < 6.0"
     }
   }
 }

@@ -4,18 +4,28 @@ output "cluster_name" {
 }
 
 output "cluster_endpoint" {
-  description = "EKS cluster API endpoint (wire once implemented)."
-  value       = null
+  description = "EKS cluster API endpoint."
+  value       = module.eks.cluster_endpoint
 }
 
 output "cluster_ca_certificate" {
-  description = "Base64-encoded CA cert data (wire once implemented)."
-  value       = null
+  description = "Base64-encoded CA cert data."
+  value       = module.eks.cluster_certificate_authority_data
 }
 
 output "oidc_provider_arn" {
-  description = "OIDC provider ARN (wire once implemented)."
-  value       = null
+  description = "OIDC provider ARN."
+  value       = module.eks.oidc_provider_arn
+}
+
+output "cluster_security_group_id" {
+  description = "Cluster security group ID."
+  value       = module.eks.cluster_security_group_id
+}
+
+output "node_security_group_id" {
+  description = "Node shared security group ID."
+  value       = module.eks.node_security_group_id
 }
 
 

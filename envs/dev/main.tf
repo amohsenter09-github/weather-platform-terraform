@@ -3,7 +3,7 @@ data "aws_availability_zones" "available" {
 }
 
 locals {
-  project = "weather-platform"
+  project = "platform"
   env     = "dev"
 
   name = "${local.project}-${local.env}"
@@ -33,6 +33,23 @@ module "network" {
   # Keep it simple and reliable: create one NAT Gateway per AZ.
   single_nat = false
   tags       = local.tags
+}
+
+module "eks" {
+  source = "../../modules/eks"
+
+  name               = "${local.name}-eks"
+  vpc_id             = module.network.vpc_id
+  private_subnet_ids = module.network.private_subnet_ids
+
+  # Minimal-cost defaults live in the module:
+  # - 1 node (min/max/desired = 1)
+  # - t3a.small
+  # - SPOT capacity
+  node_desired_size = var.node_desired_size
+  node_min_size     = var.node_min_size
+  node_max_size     = var.node_max_size
+  tags = local.tags
 }
 
 

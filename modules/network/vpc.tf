@@ -18,7 +18,19 @@ module "networking" {
 
   # Provider default_tags are already applied at the provider level in this repo,
   # but we pass tags through too so this module works even if default_tags changes.
-  additional_tags = merge(var.tags, { Name = var.name })
+  additional_tags = var.tags
+
+  vpc_additional_tags = {
+    Name = var.name
+  }
+
+  public_subnets_additional_tags = {
+    Name = "${var.name}-public"
+  }
+
+  private_subnets_additional_tags = {
+    Name = "${var.name}-private"
+  }
 
   # Opinionated defaults; you can override via wrapper vars.
   single_nat              = var.single_nat
