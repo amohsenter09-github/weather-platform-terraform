@@ -102,6 +102,7 @@ module "waf_cloudfront" {
 
   name  = "${local.name}-cloudfront-waf"
   scope = "CLOUDFRONT"
+  blocked_country_codes = var.waf_blocked_country_codes
   tags  = local.tags
 }
 

@@ -39,3 +39,9 @@ variable "rate_limit" {
   default     = 2000
 }
 
+variable "blocked_country_codes" {
+  description = "List of ISO 3166-1 alpha-2 country codes to block at the edge (e.g. [\"US\",\"RU\"]). Empty list disables geo-blocking."
+  type        = list(string)
+  default     = []
+}
+

@@ -13,6 +13,30 @@ resource "aws_wafv2_web_acl" "this" {
   }
 
   dynamic "rule" {
+    for_each = length(var.blocked_country_codes) > 0 ? [1] : []
+    content {
+      name     = "GeoBlockCountries"
+      priority = 1
+
+      action {
+        block {}
+      }
+
+      statement {
+        geo_match_statement {
+          country_codes = var.blocked_country_codes
+        }
+      }
+
+      visibility_config {
+        cloudwatch_metrics_enabled = true
+        metric_name                = "GeoBlockCountries"
+        sampled_requests_enabled   = true
+      }
+    }
+  }
+
+  dynamic "rule" {
     for_each = var.enable_managed_common_rules ? [1] : []
     content {
       name     = "AWSManagedRulesCommonRuleSet"

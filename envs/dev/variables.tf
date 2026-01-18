@@ -69,3 +69,9 @@ variable "alb_origin_domain_name" {
   type        = string
   default     = ""
 }
+
+variable "waf_blocked_country_codes" {
+  description = "List of ISO 3166-1 alpha-2 country codes to block in CloudFront WAF (e.g. [\"US\"]). Empty list disables geo-blocking."
+  type        = list(string)
+  default     = []
+}
