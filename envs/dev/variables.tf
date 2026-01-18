@@ -16,3 +16,26 @@ variable "node_max_size" {
   default     = 1
 }
 
+variable "cluster_endpoint_public_access" {
+  description = "Whether the EKS API endpoint should be publicly accessible."
+  type        = bool
+  default     = true
+}
+
+variable "cluster_endpoint_public_access_cidrs" {
+  description = "CIDRs allowed to access the public EKS API endpoint (only used if cluster_endpoint_public_access=true)."
+  type        = list(string)
+  default     = ["0.0.0.0/0"]
+}
+
+variable "external_dns_route53_zone_arns" {
+  description = "Route53 hosted zone ARNs that ExternalDNS is allowed to manage."
+  type        = list(string)
+  default     = []
+}
+
+variable "external_dns_domain_filters" {
+  description = "Optional domain filters for ExternalDNS (e.g. [\"example.com\"])."
+  type        = list(string)
+  default     = []
+}

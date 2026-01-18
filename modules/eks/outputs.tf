@@ -3,6 +3,11 @@ output "cluster_name" {
   value       = var.name
 }
 
+output "cluster_version" {
+  description = "EKS cluster Kubernetes version."
+  value       = var.kubernetes_version
+}
+
 output "cluster_endpoint" {
   description = "EKS cluster API endpoint."
   value       = module.eks.cluster_endpoint

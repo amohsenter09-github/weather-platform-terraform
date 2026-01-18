@@ -24,13 +24,19 @@ module "networking" {
     Name = var.name
   }
 
-  public_subnets_additional_tags = {
-    Name = "${var.name}-public"
-  }
+  public_subnets_additional_tags = merge(
+    {
+      Name = "${var.name}-public"
+    },
+    var.public_subnet_tags
+  )
 
-  private_subnets_additional_tags = {
-    Name = "${var.name}-private"
-  }
+  private_subnets_additional_tags = merge(
+    {
+      Name = "${var.name}-private"
+    },
+    var.private_subnet_tags
+  )
 
   # Opinionated defaults; you can override via wrapper vars.
   single_nat              = var.single_nat
