@@ -34,4 +34,24 @@ output "acm_certificate_arn" {
   value = module.acm.certificate_arn
 }
 
+output "cloudfront_domain_name" {
+  value = module.cloudfront.domain_name
+}
+
+output "cloudfront_alias_domain" {
+  value = var.cloudfront_alias_domain
+}
+
+output "cloudfront_waf_web_acl_arn" {
+  value = module.waf_cloudfront.web_acl_arn
+}
+
+output "acm_cloudfront_certificate_arn" {
+  value = module.acm_cloudfront.certificate_arn
+}
+
+output "alb_cloudfront_only_security_group_id" {
+  value = module.alb_lockdown_sg.security_group_id
+}
+
 

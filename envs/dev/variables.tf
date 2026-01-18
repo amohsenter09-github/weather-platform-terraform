@@ -57,3 +57,15 @@ variable "route53_hosted_zone_id" {
   type        = string
   default     = "Z07291932MB8UPJBFNUYB"
 }
+
+variable "cloudfront_alias_domain" {
+  description = "DNS name to point at CloudFront (use a different subdomain than the ALB/ExternalDNS-managed one)."
+  type        = string
+  default     = "cdn.infra-ai-art.delivery"
+}
+
+variable "alb_origin_domain_name" {
+  description = "ALB DNS name used as the CloudFront origin (from the Ingress ADDRESS hostname)."
+  type        = string
+  default     = ""
+}

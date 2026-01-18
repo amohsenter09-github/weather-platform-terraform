@@ -82,6 +82,68 @@ module "acm" {
   tags                      = local.tags
 }
 
+module "acm_cloudfront" {
+  source = "../../modules/acm"
+  providers = {
+    aws = aws.us_east_1
+  }
+
+  domain_name               = var.cloudfront_alias_domain
+  subject_alternative_names = []
+  hosted_zone_id            = var.route53_hosted_zone_id
+  tags                      = local.tags
+}
+
+module "waf_cloudfront" {
+  source = "../../modules/waf"
+  providers = {
+    aws = aws.us_east_1
+  }
+
+  name  = "${local.name}-cloudfront-waf"
+  scope = "CLOUDFRONT"
+  tags  = local.tags
+}
+
+module "cloudfront" {
+  source = "../../modules/cloudfront"
+
+  name                       = "${local.name}-cloudfront"
+  aliases                    = [var.cloudfront_alias_domain]
+  viewer_certificate_acm_arn = module.acm_cloudfront.certificate_arn
+  origin_domain_name         = var.alb_origin_domain_name
+  # Use HTTPS between CloudFront -> ALB (origin is a stable DNS name with a matching ACM cert).
+  origin_protocol_policy     = "https-only"
+  web_acl_arn                = module.waf_cloudfront.web_acl_arn
+  tags                       = local.tags
+}
+
+module "alb_lockdown_sg" {
+  source = "../../modules/alb_lockdown_sg"
+
+  name   = "${local.name}-alb-cloudfront-only"
+  vpc_id = module.network.vpc_id
+
+  # Your ALB terminates TLS (Ingress listens on 443) and CloudFront -> origin is `https-only`,
+  # so allow 443 from CloudFront origin-facing IP ranges. Keep 80 closed.
+  allow_http  = false
+  allow_https = true
+
+  tags = local.tags
+}
+
+resource "aws_route53_record" "cloudfront_alias" {
+  zone_id = var.route53_hosted_zone_id
+  name    = var.cloudfront_alias_domain
+  type    = "A"
+
+  alias {
+    name                   = module.cloudfront.domain_name
+    zone_id                = module.cloudfront.hosted_zone_id
+    evaluate_target_health = false
+  }
+}
+
 module "eks_blueprints_addons" {
   source  = "aws-ia/eks-blueprints-addons/aws"
   version = "~> 1.0"
