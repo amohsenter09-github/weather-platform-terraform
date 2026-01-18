@@ -39,3 +39,21 @@ variable "external_dns_domain_filters" {
   type        = list(string)
   default     = []
 }
+
+variable "acm_domain_name" {
+  description = "Domain name for ACM certificate (e.g. infra-ai-art.delivery)."
+  type        = string
+  default     = "infra-ai-art.delivery"
+}
+
+variable "acm_subject_alternative_names" {
+  description = "SANs for ACM certificate (e.g. [\"*.infra-ai-art.delivery\"])."
+  type        = list(string)
+  default     = ["*.infra-ai-art.delivery"]
+}
+
+variable "route53_hosted_zone_id" {
+  description = "Route53 hosted zone ID for infra-ai-art.delivery."
+  type        = string
+  default     = "Z07291932MB8UPJBFNUYB"
+}

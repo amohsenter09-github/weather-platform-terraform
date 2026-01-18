@@ -73,6 +73,15 @@ module "ecr" {
   tags            = local.tags
 }
 
+module "acm" {
+  source = "../../modules/acm"
+
+  domain_name               = var.acm_domain_name
+  subject_alternative_names = var.acm_subject_alternative_names
+  hosted_zone_id            = var.route53_hosted_zone_id
+  tags                      = local.tags
+}
+
 module "eks_blueprints_addons" {
   source  = "aws-ia/eks-blueprints-addons/aws"
   version = "~> 1.0"
