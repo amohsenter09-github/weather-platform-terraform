@@ -3,7 +3,7 @@ terraform {
 
   required_providers {
     aws = {
-      source  = "hashicorp/aws"
+      source = "hashicorp/aws"
       # Keep AWS provider on v5.x for compatibility with EKS module defaults.
       version = ">= 5.0, < 6.0"
     }

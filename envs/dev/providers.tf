@@ -3,7 +3,7 @@ terraform {
 
   required_providers {
     aws = {
-      source  = "hashicorp/aws"
+      source = "hashicorp/aws"
       # NOTE: This repo uses terraform-aws-modules/eks, which currently expects
       # aws_launch_template schema compatible with AWS provider v5.x.
       version = ">= 5.0, < 6.0"
@@ -54,7 +54,7 @@ provider "helm" {
   # Keep everything self-contained inside this env folder.
   repository_config_path = "${path.module}/.helm/repositories.yaml"
   # Helm expects index files under a "repository" cache dir (e.g. .../helm/repository/<repo>-index.yaml)
-  repository_cache       = "${path.module}/.helm/repository"
+  repository_cache = "${path.module}/.helm/repository"
 
   kubernetes {
     host                   = module.eks.cluster_endpoint

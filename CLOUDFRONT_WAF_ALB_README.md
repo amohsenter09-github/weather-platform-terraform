@@ -106,3 +106,10 @@ This lets CloudFront use **`https-only`** to the origin without certificate mism
   - `kubectl -n kube-system logs deploy/aws-load-balancer-controller`
   - `kubectl -n external-dns logs deploy/external-dns`
 
+### Optional: Geo-blocking by country (WAF)
+This repo supports blocking traffic by country at the CloudFront WAF layer.
+
+- Variable: `waf_blocked_country_codes` (example: `["US"]`)
+- Location: `envs/dev/dev.auto.tfvars`
+- Effect: requests from those countries are blocked at the edge (before ALB/EKS).
+

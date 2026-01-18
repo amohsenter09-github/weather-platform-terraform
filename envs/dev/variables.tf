@@ -28,6 +28,12 @@ variable "cluster_endpoint_public_access_cidrs" {
   default     = ["0.0.0.0/0"]
 }
 
+variable "kubernetes_version" {
+  description = "EKS Kubernetes version (e.g. 1.34)."
+  type        = string
+  default     = "1.34"
+}
+
 variable "external_dns_route53_zone_arns" {
   description = "Route53 hosted zone ARNs that ExternalDNS is allowed to manage."
   type        = list(string)

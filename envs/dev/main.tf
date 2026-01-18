@@ -36,12 +36,12 @@ module "network" {
   # Subnet discovery tags for AWS Load Balancer Controller (ingress).
   # Option A: let the controller auto-discover subnets via tags.
   public_subnet_tags = {
-    "kubernetes.io/role/elb"                          = "1"
-    "kubernetes.io/cluster/${local.name}-eks"         = "shared"
+    "kubernetes.io/role/elb"                  = "1"
+    "kubernetes.io/cluster/${local.name}-eks" = "shared"
   }
   private_subnet_tags = {
-    "kubernetes.io/role/internal-elb"                 = "1"
-    "kubernetes.io/cluster/${local.name}-eks"         = "shared"
+    "kubernetes.io/role/internal-elb"         = "1"
+    "kubernetes.io/cluster/${local.name}-eks" = "shared"
   }
 
   tags = local.tags
@@ -50,9 +50,10 @@ module "network" {
 module "eks" {
   source = "../../modules/eks"
 
-  name               = "${local.name}-eks"
-  vpc_id             = module.network.vpc_id
-  private_subnet_ids = module.network.private_subnet_ids
+  name                                 = "${local.name}-eks"
+  vpc_id                               = module.network.vpc_id
+  private_subnet_ids                   = module.network.private_subnet_ids
+  kubernetes_version                   = var.kubernetes_version
   cluster_endpoint_public_access       = var.cluster_endpoint_public_access
   cluster_endpoint_public_access_cidrs = var.cluster_endpoint_public_access_cidrs
 
@@ -63,7 +64,7 @@ module "eks" {
   node_desired_size = var.node_desired_size
   node_min_size     = var.node_min_size
   node_max_size     = var.node_max_size
-  tags = local.tags
+  tags              = local.tags
 }
 
 module "ecr" {
@@ -100,10 +101,10 @@ module "waf_cloudfront" {
     aws = aws.us_east_1
   }
 
-  name  = "${local.name}-cloudfront-waf"
-  scope = "CLOUDFRONT"
+  name                  = "${local.name}-cloudfront-waf"
+  scope                 = "CLOUDFRONT"
   blocked_country_codes = var.waf_blocked_country_codes
-  tags  = local.tags
+  tags                  = local.tags
 }
 
 module "cloudfront" {
@@ -114,9 +115,9 @@ module "cloudfront" {
   viewer_certificate_acm_arn = module.acm_cloudfront.certificate_arn
   origin_domain_name         = var.alb_origin_domain_name
   # Use HTTPS between CloudFront -> ALB (origin is a stable DNS name with a matching ACM cert).
-  origin_protocol_policy     = "https-only"
-  web_acl_arn                = module.waf_cloudfront.web_acl_arn
-  tags                       = local.tags
+  origin_protocol_policy = "https-only"
+  web_acl_arn            = module.waf_cloudfront.web_acl_arn
+  tags                   = local.tags
 }
 
 module "alb_lockdown_sg" {
@@ -171,11 +172,11 @@ module "eks_blueprints_addons" {
         domainFilters = var.external_dns_domain_filters
       })
     ]
-    source_policy_documents   = []
-    override_policy_documents = []
+    source_policy_documents       = []
+    override_policy_documents     = []
     role_permissions_boundary_arn = null
-    role_policies            = {}
-    policy_statements        = []
+    role_policies                 = {}
+    policy_statements             = []
   }
 
   tags = local.tags

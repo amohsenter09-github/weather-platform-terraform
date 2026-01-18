@@ -15,8 +15,8 @@ resource "aws_ecrpublic_repository" "this" {
 
 data "aws_iam_policy_document" "public_pull" {
   statement {
-    sid     = "AllowAnonymousPull"
-    effect  = "Allow"
+    sid    = "AllowAnonymousPull"
+    effect = "Allow"
     actions = [
       "ecr-public:BatchCheckLayerAvailability",
       "ecr-public:BatchGetImage",

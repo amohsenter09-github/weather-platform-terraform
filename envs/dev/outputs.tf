@@ -38,6 +38,10 @@ output "cloudfront_domain_name" {
   value = module.cloudfront.domain_name
 }
 
+output "cloudfront_distribution_id" {
+  value = module.cloudfront.distribution_id
+}
+
 output "cloudfront_alias_domain" {
   value = var.cloudfront_alias_domain
 }

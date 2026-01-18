@@ -58,7 +58,7 @@ variable "node_desired_size" {
 variable "node_min_size" {
   description = "Min node count for the minimal node group."
   type        = number
-  default     = 1
+  default     = 0
 }
 
 variable "node_max_size" {
