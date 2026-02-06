@@ -26,14 +26,14 @@ module "networking" {
 
   public_subnets_additional_tags = merge(
     {
-      Name = "${var.name}-public"
+    Name = "${var.name}-public"
     },
     var.public_subnet_tags
   )
 
   private_subnets_additional_tags = merge(
     {
-      Name = "${var.name}-private"
+    Name = "${var.name}-private"
     },
     var.private_subnet_tags
   )
