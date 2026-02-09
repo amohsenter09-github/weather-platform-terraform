@@ -16,6 +16,10 @@ locals {
 
   # Pick first 3 AZs in eu-west-1 (provider is pinned to eu-west-1 in envs/dev/providers.tf).
   azs = slice(data.aws_availability_zones.available.names, 0, 3)
+
+  # CloudFront/WAF/ACM(us-east-1) require a non-empty origin DNS name.
+  # When the origin isn't known yet (e.g. before Ingress/ALB exists), skip creating the edge stack.
+  enable_cloudfront_stack = length(trimspace(var.alb_origin_domain_name)) > 0
 }
 
 module "network" {
@@ -84,6 +88,7 @@ module "acm" {
 }
 
 module "acm_cloudfront" {
+  count  = local.enable_cloudfront_stack ? 1 : 0
   source = "../../modules/acm"
   providers = {
     aws = aws.us_east_1
@@ -96,6 +101,7 @@ module "acm_cloudfront" {
 }
 
 module "waf_cloudfront" {
+  count  = local.enable_cloudfront_stack ? 1 : 0
   source = "../../modules/waf"
   providers = {
     aws = aws.us_east_1
@@ -108,15 +114,16 @@ module "waf_cloudfront" {
 }
 
 module "cloudfront" {
+  count  = local.enable_cloudfront_stack ? 1 : 0
   source = "../../modules/cloudfront"
 
   name                       = "${local.name}-cloudfront"
   aliases                    = [var.cloudfront_alias_domain]
-  viewer_certificate_acm_arn = module.acm_cloudfront.certificate_arn
+  viewer_certificate_acm_arn = module.acm_cloudfront[0].certificate_arn
   origin_domain_name         = var.alb_origin_domain_name
   # Use HTTPS between CloudFront -> ALB (origin is a stable DNS name with a matching ACM cert).
   origin_protocol_policy = "https-only"
-  web_acl_arn            = module.waf_cloudfront.web_acl_arn
+  web_acl_arn            = module.waf_cloudfront[0].web_acl_arn
   tags                   = local.tags
 }
 
@@ -135,13 +142,14 @@ module "alb_lockdown_sg" {
 }
 
 resource "aws_route53_record" "cloudfront_alias" {
+  count  = local.enable_cloudfront_stack ? 1 : 0
   zone_id = var.route53_hosted_zone_id
   name    = var.cloudfront_alias_domain
   type    = "A"
 
   alias {
-    name                   = module.cloudfront.domain_name
-    zone_id                = module.cloudfront.hosted_zone_id
+    name                   = module.cloudfront[0].domain_name
+    zone_id                = module.cloudfront[0].hosted_zone_id
     evaluate_target_health = false
   }
 }

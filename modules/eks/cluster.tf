@@ -24,6 +24,15 @@ module "eks" {
   vpc_id     = var.vpc_id
   subnet_ids = var.private_subnet_ids
 
+  # Avoid conflicts with leftover AWS resources from previous experiments.
+  # You can re-enable these later if you want Terraform to manage them.
+  #
+  # 1) KMS key + alias (alias/eks/<cluster_name>)
+  # 2) CloudWatch log group (/aws/eks/<cluster_name>/cluster)
+  cluster_encryption_config   = {}
+  create_kms_key              = false
+  create_cloudwatch_log_group = false
+
   # Keep control-plane logging off by default to reduce CloudWatch cost.
   cluster_enabled_log_types = []
 

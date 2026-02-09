@@ -35,11 +35,11 @@ output "acm_certificate_arn" {
 }
 
 output "cloudfront_domain_name" {
-  value = module.cloudfront.domain_name
+  value = try(module.cloudfront[0].domain_name, null)
 }
 
 output "cloudfront_distribution_id" {
-  value = module.cloudfront.distribution_id
+  value = try(module.cloudfront[0].distribution_id, null)
 }
 
 output "cloudfront_alias_domain" {
@@ -47,11 +47,11 @@ output "cloudfront_alias_domain" {
 }
 
 output "cloudfront_waf_web_acl_arn" {
-  value = module.waf_cloudfront.web_acl_arn
+  value = try(module.waf_cloudfront[0].web_acl_arn, null)
 }
 
 output "acm_cloudfront_certificate_arn" {
-  value = module.acm_cloudfront.certificate_arn
+  value = try(module.acm_cloudfront[0].certificate_arn, null)
 }
 
 output "alb_cloudfront_only_security_group_id" {
