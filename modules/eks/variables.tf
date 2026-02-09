@@ -37,6 +37,12 @@ variable "cluster_endpoint_public_access_cidrs" {
   default     = ["0.0.0.0/0"]
 }
 
+variable "access_entries" {
+  description = "Map of EKS access entries to add (EKS API access)."
+  type        = any
+  default     = {}
+}
+
 variable "node_instance_types" {
   description = "Instance types for the minimal managed node group."
   type        = list(string)

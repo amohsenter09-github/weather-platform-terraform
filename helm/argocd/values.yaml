@@ -1,0 +1,17 @@
+# Minimal Argo CD install suitable for small dev clusters.
+# You can add more settings later (ingress, SSO, etc).
+
+server:
+  service:
+    type: ClusterIP
+
+# Reduce footprint for experiments
+dex:
+  enabled: false
+
+notifications:
+  enabled: false
+
+applicationSet:
+  enabled: false
+

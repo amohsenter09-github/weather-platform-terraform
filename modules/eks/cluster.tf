@@ -50,6 +50,9 @@ module "eks" {
   # This enables kubectl access without managing aws-auth manually.
   enable_cluster_creator_admin_permissions = true
 
+  # Additional access entries (e.g. IAM Identity Center roles for console access).
+  access_entries = var.access_entries
+
   cluster_addons = {
     coredns = {
       most_recent = true

@@ -53,6 +53,18 @@ variable "kubernetes_version" {
   default     = "1.34"
 }
 
+variable "eks_console_admin_role_arn" {
+  description = "IAM role ARN to grant EKS admin access for AWS Console (commonly an IAM Identity Center AWSReservedSSO role). Set to empty string to disable."
+  type        = string
+  default     = "arn:aws:iam::918780499156:role/aws-reserved/sso.amazonaws.com/AWSReservedSSO_AdministratorAccess_cd90bbc6555a3922"
+}
+
+variable "eks_access_entries" {
+  description = "Additional EKS access entries to merge in (advanced)."
+  type        = any
+  default     = {}
+}
+
 variable "external_dns_route53_zone_arns" {
   description = "Route53 hosted zone ARNs that ExternalDNS is allowed to manage."
   type        = list(string)

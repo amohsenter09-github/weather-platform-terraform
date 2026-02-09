@@ -26,6 +26,25 @@ locals {
   external_dns_route53_zone_arns_effective = length(var.external_dns_route53_zone_arns) > 0 ? var.external_dns_route53_zone_arns : [
     "arn:aws:route53:::hostedzone/${var.route53_hosted_zone_id}"
   ]
+
+  # Grant EKS admin access to the IAM Identity Center admin role so the EKS console
+  # can read Kubernetes objects.
+  default_eks_access_entries = length(trimspace(var.eks_console_admin_role_arn)) > 0 ? {
+    sso_admin = {
+      kubernetes_groups = []
+      principal_arn     = var.eks_console_admin_role_arn
+      policy_associations = {
+        admin = {
+          policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
+          access_scope = {
+            type = "cluster"
+          }
+        }
+      }
+    }
+  } : {}
+
+  eks_access_entries_effective = merge(local.default_eks_access_entries, try(var.eks_access_entries, {}))
 }
 
 module "network" {
@@ -74,6 +93,7 @@ module "eks" {
   node_desired_size = var.node_desired_size
   node_min_size     = var.node_min_size
   node_max_size     = var.node_max_size
+  access_entries    = local.eks_access_entries_effective
   tags              = local.tags
 }
 
