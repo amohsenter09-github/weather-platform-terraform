@@ -47,27 +47,27 @@ variable "external_dns_domain_filters" {
 }
 
 variable "acm_domain_name" {
-  description = "Domain name for ACM certificate (e.g. infra-ai-art.delivery)."
+  description = "Domain name for ACM certificate (e.g. cloud-master-ai.com)."
   type        = string
-  default     = "infra-ai-art.delivery"
+  default     = "cloud-master-ai.com"
 }
 
 variable "acm_subject_alternative_names" {
-  description = "SANs for ACM certificate (e.g. [\"*.infra-ai-art.delivery\"])."
+  description = "SANs for ACM certificate (e.g. [\"*.cloud-master-ai.com\"])."
   type        = list(string)
-  default     = ["*.infra-ai-art.delivery"]
+  default     = ["*.cloud-master-ai.com"]
 }
 
 variable "route53_hosted_zone_id" {
-  description = "Route53 hosted zone ID for infra-ai-art.delivery."
+  description = "Route53 hosted zone ID for cloud-master-ai.com."
   type        = string
-  default     = "Z07291932MB8UPJBFNUYB"
+  default     = "Z05740989HOC6092S0FL"
 }
 
 variable "cloudfront_alias_domain" {
   description = "DNS name to point at CloudFront (use a different subdomain than the ALB/ExternalDNS-managed one)."
   type        = string
-  default     = "cdn.infra-ai-art.delivery"
+  default     = "cdn.cloud-master-ai.com"
 }
 
 variable "alb_origin_domain_name" {

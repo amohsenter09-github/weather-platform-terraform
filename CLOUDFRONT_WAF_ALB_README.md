@@ -7,10 +7,10 @@
 #### Happy path (allowed)
 
 `Browser`
-→ **Route53** (`cdn.infra-ai-art.delivery`)
+→ **Route53** (`cdn.cloud-master-ai.com`)
 → **CloudFront Distribution** (public entrypoint)
 → **WAFv2 Web ACL** *(filters/blocks bad traffic)*
-→ **Origin DNS** (`origin.infra-ai-art.delivery`)
+→ **Origin DNS** (`origin.cloud-master-ai.com`)
 → **ALB** (created by AWS Load Balancer Controller from your Kubernetes Ingress)
 → `Kubernetes Service`
 → `Pods`
@@ -26,13 +26,13 @@
 **2) Direct internet → ALB with forged Host header (still blocked)**
 
 `Browser`
-→ `k8s-…elb.amazonaws.com` + `Host: origin.infra-ai-art.delivery`
+→ `k8s-…elb.amazonaws.com` + `Host: origin.cloud-master-ai.com`
 → ❌ **Still blocked at Security Group** (Host headers can be forged; SG cannot)
 
 **3) Direct internet → origin DNS (also blocked)**
 
 `Browser`
-→ `origin.infra-ai-art.delivery`
+→ `origin.cloud-master-ai.com`
 → ❌ **Blocked at ALB Security Group**
 
 ### Locking the ALB to CloudFront only (recommended)
@@ -72,12 +72,12 @@ Optional hardening:
 We use two names so we can keep the ALB as an **origin-only** endpoint and make CloudFront the **only public entrypoint**.
 
 - **Public CloudFront alias (users hit this):**
-  - `cdn.infra-ai-art.delivery` → Route53 **A Alias** → CloudFront distribution domain
+  - `cdn.cloud-master-ai.com` → Route53 **A Alias** → CloudFront distribution domain
 - **Origin alias (CloudFront hits this):**
-  - `origin.infra-ai-art.delivery` → created/managed by ExternalDNS → points at the ALB
+  - `origin.cloud-master-ai.com` → created/managed by ExternalDNS → points at the ALB
 
 Important: your Kubernetes Ingress must match the origin hostname:
-- Ingress `spec.rules[].host` should be `origin.infra-ai-art.delivery`
+- Ingress `spec.rules[].host` should be `origin.cloud-master-ai.com`
 
 If the Ingress host doesn’t match, the ALB returns **404** (host-based routing).
 
@@ -90,11 +90,11 @@ If the Ingress host doesn’t match, the ALB returns **404** (host-based routing
 
 **1) CloudFront (public)**
 - Cert location: **ACM in `us-east-1`**
-- Covers: `cdn.infra-ai-art.delivery`
+- Covers: `cdn.cloud-master-ai.com`
 
 **2) ALB (origin)**
 - Cert location: **ACM in `eu-west-1`**
-- Covers: `origin.infra-ai-art.delivery`
+- Covers: `origin.cloud-master-ai.com`
 
 This lets CloudFront use **`https-only`** to the origin without certificate mismatch.
 
