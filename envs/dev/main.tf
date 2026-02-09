@@ -20,6 +20,12 @@ locals {
   # CloudFront/WAF/ACM(us-east-1) require a non-empty origin DNS name.
   # When the origin isn't known yet (e.g. before Ingress/ALB exists), skip creating the edge stack.
   enable_cloudfront_stack = length(trimspace(var.alb_origin_domain_name)) > 0
+
+  # ExternalDNS needs at least one hosted zone ARN to create an IRSA role.
+  # If the user doesn't provide any, default to the main hosted zone.
+  external_dns_route53_zone_arns_effective = length(var.external_dns_route53_zone_arns) > 0 ? var.external_dns_route53_zone_arns : [
+    "arn:aws:route53:::hostedzone/${var.route53_hosted_zone_id}"
+  ]
 }
 
 module "network" {
@@ -154,7 +160,8 @@ resource "aws_route53_record" "cloudfront_alias" {
   }
 }
 
-module "eks_blueprints_addons" {
+# Install AWS Load Balancer Controller first (it registers a webhook).
+module "eks_blueprints_addons_alb" {
   source  = "aws-ia/eks-blueprints-addons/aws"
   version = "~> 1.0"
 
@@ -169,23 +176,53 @@ module "eks_blueprints_addons" {
 
   # Only what you asked for:
   enable_aws_load_balancer_controller = true
+  enable_external_dns                 = false
+
+  # Ensure the controller (and its webhook endpoints) are ready before moving on.
+  aws_load_balancer_controller = {
+    wait    = true
+    timeout = 600
+  }
+
+  tags = local.tags
+}
+
+// Install ExternalDNS after the ALB controller webhook is ready.
+module "eks_blueprints_addons_external_dns" {
+  source  = "aws-ia/eks-blueprints-addons/aws"
+  version = "~> 1.0"
+
+  depends_on = [module.eks_blueprints_addons_alb]
+
+  cluster_name      = module.eks.cluster_name
+  cluster_endpoint  = module.eks.cluster_endpoint
+  cluster_version   = module.eks.cluster_version
+  oidc_provider_arn = module.eks.oidc_provider_arn
+
+  eks_addons = {}
+
+  enable_aws_load_balancer_controller = false
   enable_external_dns                 = true
 
-  external_dns_route53_zone_arns = var.external_dns_route53_zone_arns
-  # external-dns settings are passed as a loose map. We include the commonly-looked-up
-  # keys to avoid type-mismatch issues in `lookup(...)` defaults inside the module.
-  external_dns = {
-    values = [
-      yamlencode({
-        domainFilters = var.external_dns_domain_filters
-      })
-    ]
-    source_policy_documents       = []
-    override_policy_documents     = []
-    role_permissions_boundary_arn = null
-    role_policies                 = {}
-    policy_statements             = []
-  }
+  external_dns = merge(
+    {
+      wait    = true
+      timeout = 600
+    },
+    {
+      values = [
+        yamlencode({
+          domainFilters = var.external_dns_domain_filters
+        })
+      ]
+      source_policy_documents       = []
+      override_policy_documents     = []
+      role_permissions_boundary_arn = null
+      role_policies                 = {}
+      policy_statements             = []
+    }
+  )
+  external_dns_route53_zone_arns = local.external_dns_route53_zone_arns_effective
 
   tags = local.tags
 }

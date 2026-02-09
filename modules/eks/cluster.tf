@@ -8,6 +8,9 @@ locals {
       min_size     = var.node_min_size
       max_size     = var.node_max_size
       desired_size = var.node_desired_size
+      # We intentionally scale nodes up/down in dev (including to 0), so do not
+      # ignore desired_size drift.
+      ignore_desired_size_changes = false
 
       disk_size = var.node_disk_size
     }

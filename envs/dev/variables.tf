@@ -1,19 +1,38 @@
 variable "node_desired_size" {
   description = "Desired node count for the dev EKS managed node group. Set to 0 to stop worker nodes."
   type        = number
-  default     = 0
+  default     = 1
+
+  validation {
+    condition = (
+      var.node_desired_size >= 0 &&
+      var.node_min_size <= var.node_desired_size &&
+      var.node_desired_size <= var.node_max_size
+    )
+    error_message = "Invalid node sizes: must satisfy node_min_size <= node_desired_size <= node_max_size (set all to 0 if you want to stop nodes)."
+  }
 }
 
 variable "node_min_size" {
   description = "Minimum node count for the dev EKS managed node group."
   type        = number
   default     = 0
+
+  validation {
+    condition     = var.node_min_size >= 0
+    error_message = "node_min_size must be >= 0."
+  }
 }
 
 variable "node_max_size" {
   description = "Maximum node count for the dev EKS managed node group."
   type        = number
   default     = 1
+
+  validation {
+    condition     = var.node_max_size >= 0
+    error_message = "node_max_size must be >= 0."
+  }
 }
 
 variable "cluster_endpoint_public_access" {
