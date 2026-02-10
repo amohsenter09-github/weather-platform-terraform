@@ -35,6 +35,23 @@ variable "node_max_size" {
   }
 }
 
+variable "node_capacity_type" {
+  description = "EKS managed node group capacity type: ON_DEMAND (reliable) or SPOT (cheapest)."
+  type        = string
+  default     = "SPOT"
+
+  validation {
+    condition     = contains(["ON_DEMAND", "SPOT"], var.node_capacity_type)
+    error_message = "node_capacity_type must be one of: ON_DEMAND, SPOT."
+  }
+}
+
+variable "node_instance_types" {
+  description = "Instance types for the EKS managed node group."
+  type        = list(string)
+  default     = ["t3a.small"]
+}
+
 variable "cluster_endpoint_public_access" {
   description = "Whether the EKS API endpoint should be publicly accessible."
   type        = bool

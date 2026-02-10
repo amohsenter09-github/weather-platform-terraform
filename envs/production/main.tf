@@ -93,6 +93,8 @@ module "eks" {
   node_desired_size = var.node_desired_size
   node_min_size     = var.node_min_size
   node_max_size     = var.node_max_size
+  node_capacity_type  = var.node_capacity_type
+  node_instance_types = var.node_instance_types
   access_entries    = local.eks_access_entries_effective
   tags              = local.tags
 }

@@ -15,3 +15,37 @@ notifications:
 applicationSet:
   enabled: false
 
+# Create Argo CD Projects via Helm-managed manifests.
+# You can tighten `sourceRepos` / `destinations` later.
+extraObjects:
+  - apiVersion: argoproj.io/v1alpha1
+    kind: AppProject
+    metadata:
+      name: development
+      namespace: argocd
+    spec:
+      description: Development apps
+      sourceRepos:
+        - "*"
+      destinations:
+        - namespace: "*"
+          server: https://kubernetes.default.svc
+      clusterResourceWhitelist:
+        - group: "*"
+          kind: "*"
+  - apiVersion: argoproj.io/v1alpha1
+    kind: AppProject
+    metadata:
+      name: production
+      namespace: argocd
+    spec:
+      description: Production apps
+      sourceRepos:
+        - "*"
+      destinations:
+        - namespace: "*"
+          server: https://kubernetes.default.svc
+      clusterResourceWhitelist:
+        - group: "*"
+          kind: "*"
+
