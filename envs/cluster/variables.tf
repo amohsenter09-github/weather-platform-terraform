@@ -112,24 +112,6 @@ variable "route53_hosted_zone_id" {
   default     = "Z05740989HOC6092S0FL"
 }
 
-variable "cloudfront_alias_domain" {
-  description = "DNS name to point at CloudFront (use a different subdomain than the ALB/ExternalDNS-managed one)."
-  type        = string
-  default     = "cdn.cloud-master-ai.com"
-}
-
-variable "alb_origin_domain_name" {
-  description = "ALB DNS name used as the CloudFront origin (from the Ingress ADDRESS hostname)."
-  type        = string
-  default     = ""
-}
-
-variable "waf_blocked_country_codes" {
-  description = "List of ISO 3166-1 alpha-2 country codes to block in CloudFront WAF (e.g. [\"US\"]). Empty list disables geo-blocking."
-  type        = list(string)
-  default     = []
-}
-
 variable "enable_kubernetes_addons" {
   description = "If true, install Kubernetes addons (ALB Controller, ExternalDNS) via Helm. For a brand-new cluster, apply once with this = false, then enable and apply again."
   type        = bool

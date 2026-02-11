@@ -23,12 +23,6 @@ provider "aws" {
   region = "eu-west-1"
 }
 
-# Needed for ACM (CloudFront) and WAFv2 (CLOUDFRONT scope) which are managed in us-east-1.
-provider "aws" {
-  alias  = "us_east_1"
-  region = "us-east-1"
-}
-
 provider "kubernetes" {
   host                   = module.eks.cluster_endpoint
   cluster_ca_certificate = base64decode(module.eks.cluster_ca_certificate)

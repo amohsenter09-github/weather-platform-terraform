@@ -14,12 +14,8 @@ locals {
     ManagedBy   = "Terraform"
   }
 
-  # Pick first 3 AZs in eu-west-1 (provider is pinned to eu-west-1 in envs/production/providers.tf).
+  # Pick first 3 AZs in eu-west-1 (provider is pinned to eu-west-1 in envs/cluster/providers.tf).
   azs = slice(data.aws_availability_zones.available.names, 0, 3)
-
-  # CloudFront/WAF/ACM(us-east-1) require a non-empty origin DNS name.
-  # When the origin isn't known yet (e.g. before Ingress/ALB exists), skip creating the edge stack.
-  enable_cloudfront_stack = length(trimspace(var.alb_origin_domain_name)) > 0
 
   # ExternalDNS needs at least one hosted zone ARN to create an IRSA role.
   # If the user doesn't provide any, default to the main hosted zone.
@@ -90,13 +86,13 @@ module "eks" {
   # - 1 node (min/max/desired = 1)
   # - t3a.small
   # - SPOT capacity
-  node_desired_size = var.node_desired_size
-  node_min_size     = var.node_min_size
-  node_max_size     = var.node_max_size
+  node_desired_size   = var.node_desired_size
+  node_min_size       = var.node_min_size
+  node_max_size       = var.node_max_size
   node_capacity_type  = var.node_capacity_type
   node_instance_types = var.node_instance_types
-  access_entries    = local.eks_access_entries_effective
-  tags              = local.tags
+  access_entries      = local.eks_access_entries_effective
+  tags                = local.tags
 }
 
 module "ecr" {
@@ -117,76 +113,9 @@ module "acm" {
   tags                      = local.tags
 }
 
-module "acm_cloudfront" {
-  count  = local.enable_cloudfront_stack ? 1 : 0
-  source = "../../modules/acm"
-  providers = {
-    aws = aws.us_east_1
-  }
-
-  domain_name               = var.cloudfront_alias_domain
-  subject_alternative_names = []
-  hosted_zone_id            = var.route53_hosted_zone_id
-  tags                      = local.tags
-}
-
-module "waf_cloudfront" {
-  count  = local.enable_cloudfront_stack ? 1 : 0
-  source = "../../modules/waf"
-  providers = {
-    aws = aws.us_east_1
-  }
-
-  name                  = "${local.name}-cloudfront-waf"
-  scope                 = "CLOUDFRONT"
-  blocked_country_codes = var.waf_blocked_country_codes
-  tags                  = local.tags
-}
-
-module "cloudfront" {
-  count  = local.enable_cloudfront_stack ? 1 : 0
-  source = "../../modules/cloudfront"
-
-  name                       = "${local.name}-cloudfront"
-  aliases                    = [var.cloudfront_alias_domain]
-  viewer_certificate_acm_arn = module.acm_cloudfront[0].certificate_arn
-  origin_domain_name         = var.alb_origin_domain_name
-  # Use HTTPS between CloudFront -> ALB (origin is a stable DNS name with a matching ACM cert).
-  origin_protocol_policy = "https-only"
-  web_acl_arn            = module.waf_cloudfront[0].web_acl_arn
-  tags                   = local.tags
-}
-
-module "alb_lockdown_sg" {
-  source = "../../modules/alb_lockdown_sg"
-
-  name   = "${local.name}-alb-cloudfront-only"
-  vpc_id = module.network.vpc_id
-
-  # Your ALB terminates TLS (Ingress listens on 443) and CloudFront -> origin is `https-only`,
-  # so allow 443 from CloudFront origin-facing IP ranges. Keep 80 closed.
-  allow_http  = false
-  allow_https = true
-
-  tags = local.tags
-}
-
-resource "aws_route53_record" "cloudfront_alias" {
-  count  = local.enable_cloudfront_stack ? 1 : 0
-  zone_id = var.route53_hosted_zone_id
-  name    = var.cloudfront_alias_domain
-  type    = "A"
-
-  alias {
-    name                   = module.cloudfront[0].domain_name
-    zone_id                = module.cloudfront[0].hosted_zone_id
-    evaluate_target_health = false
-  }
-}
-
 # Install AWS Load Balancer Controller first (it registers a webhook).
 module "eks_blueprints_addons_alb" {
-  count = var.enable_kubernetes_addons ? 1 : 0
+  count   = var.enable_kubernetes_addons ? 1 : 0
   source  = "aws-ia/eks-blueprints-addons/aws"
   version = "~> 1.0"
 
@@ -214,7 +143,7 @@ module "eks_blueprints_addons_alb" {
 
 // Install ExternalDNS after the ALB controller webhook is ready.
 module "eks_blueprints_addons_external_dns" {
-  count = var.enable_kubernetes_addons ? 1 : 0
+  count   = var.enable_kubernetes_addons ? 1 : 0
   source  = "aws-ia/eks-blueprints-addons/aws"
   version = "~> 1.0"
 
