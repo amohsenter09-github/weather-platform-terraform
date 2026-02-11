@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "${SCRIPT_DIR}"
+
 NAMESPACE="argocd"
 RELEASE="argocd"
 REPO_NAME="argo"
@@ -12,11 +15,15 @@ kubectl get ns "${NAMESPACE}" >/dev/null 2>&1 || kubectl create namespace "${NAM
 helm repo add "${REPO_NAME}" "${REPO_URL}" >/dev/null 2>&1 || true
 helm repo update >/dev/null
 
+# Phase 1: Install Argo CD core (AppProject CRDs must exist before creating projects)
 helm upgrade --install "${RELEASE}" "${CHART}" \
   --namespace "${NAMESPACE}" \
-  --values values.yaml \
+  --values values-core.yaml \
   --wait \
   --timeout 10m
+
+# Phase 2: Apply AppProjects (development, production)
+kubectl apply -f projects.yaml
 
 echo
 echo "Argo CD installed."

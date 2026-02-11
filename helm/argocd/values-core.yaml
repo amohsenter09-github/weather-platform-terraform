@@ -1,0 +1,15 @@
+# Core Argo CD config (no AppProjects - CRDs must exist first).
+# install.sh uses this for initial install, then upgrades with values.yaml.
+
+server:
+  service:
+    type: ClusterIP
+
+dex:
+  enabled: false
+
+notifications:
+  enabled: false
+
+applicationSet:
+  enabled: false

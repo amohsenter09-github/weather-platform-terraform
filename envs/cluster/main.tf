@@ -156,8 +156,10 @@ module "eks_blueprints_addons_external_dns" {
 
   eks_addons = {}
 
+  # ALB controller is installed by eks_blueprints_addons_alb; only install ExternalDNS here.
   enable_aws_load_balancer_controller = false
   enable_external_dns                 = true
+  enable_secrets_store_csi_driver      = true
 
   external_dns = merge(
     {
