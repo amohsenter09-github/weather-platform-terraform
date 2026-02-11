@@ -95,12 +95,17 @@ module "eks" {
   tags                = local.tags
 }
 
-module "ecr" {
+module "ecr_weather" {
   source = "../../modules/ecr"
 
-  # Use an env-specific repo name to avoid collisions if multiple envs
-  # are applied from separate Terraform states in the same AWS account.
   repository_name = "weather-platform"
+  tags            = local.tags
+}
+
+module "ecr_air_quality" {
+  source = "../../modules/ecr"
+
+  repository_name = "air-quality-platform"
   tags            = local.tags
 }
 

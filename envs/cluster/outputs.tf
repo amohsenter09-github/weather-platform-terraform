@@ -26,8 +26,12 @@ output "eks_oidc_provider_arn" {
   value = module.eks.oidc_provider_arn
 }
 
-output "ecr_repository_url" {
-  value = module.ecr.repository_url
+output "ecr_weather_repository_url" {
+  value = module.ecr_weather.repository_url
+}
+
+output "ecr_air_quality_repository_url" {
+  value = module.ecr_air_quality.repository_url
 }
 
 output "acm_certificate_arn" {
