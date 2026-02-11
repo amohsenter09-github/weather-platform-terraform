@@ -4,9 +4,9 @@ data "aws_availability_zones" "available" {
 
 locals {
   project = "platform"
-  env     = "dev"
-
-  name = "${local.project}-${local.env}"
+  # Single shared cluster: keep names generic (no dev/prod).
+  env  = "shared"
+  name = local.project
 
   tags = {
     Project     = local.project
@@ -14,7 +14,7 @@ locals {
     ManagedBy   = "Terraform"
   }
 
-  # Pick first 3 AZs in eu-west-1 (provider is pinned to eu-west-1 in envs/dev/providers.tf).
+  # Pick first 3 AZs in eu-west-1 (provider is pinned to eu-west-1 in envs/production/providers.tf).
   azs = slice(data.aws_availability_zones.available.names, 0, 3)
 
   # CloudFront/WAF/ACM(us-east-1) require a non-empty origin DNS name.
@@ -102,6 +102,8 @@ module "eks" {
 module "ecr" {
   source = "../../modules/ecr"
 
+  # Use an env-specific repo name to avoid collisions if multiple envs
+  # are applied from separate Terraform states in the same AWS account.
   repository_name = "weather-platform"
   tags            = local.tags
 }
@@ -184,6 +186,7 @@ resource "aws_route53_record" "cloudfront_alias" {
 
 # Install AWS Load Balancer Controller first (it registers a webhook).
 module "eks_blueprints_addons_alb" {
+  count = var.enable_kubernetes_addons ? 1 : 0
   source  = "aws-ia/eks-blueprints-addons/aws"
   version = "~> 1.0"
 
@@ -211,6 +214,7 @@ module "eks_blueprints_addons_alb" {
 
 // Install ExternalDNS after the ALB controller webhook is ready.
 module "eks_blueprints_addons_external_dns" {
+  count = var.enable_kubernetes_addons ? 1 : 0
   source  = "aws-ia/eks-blueprints-addons/aws"
   version = "~> 1.0"
 

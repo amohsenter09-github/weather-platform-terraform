@@ -129,3 +129,9 @@ variable "waf_blocked_country_codes" {
   type        = list(string)
   default     = []
 }
+
+variable "enable_kubernetes_addons" {
+  description = "If true, install Kubernetes addons (ALB Controller, ExternalDNS) via Helm. For a brand-new cluster, apply once with this = false, then enable and apply again."
+  type        = bool
+  default     = false
+}
