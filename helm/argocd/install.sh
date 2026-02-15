@@ -26,7 +26,7 @@ helm upgrade --install "${RELEASE}" "${CHART}" \
   --wait \
   --timeout 10m
 
-# Phase 2: Apply AppProjects (development, production)
+# Phase 2: Apply AppProjects (development, production, uat)
 kubectl apply -f projects.yaml
 
 echo
