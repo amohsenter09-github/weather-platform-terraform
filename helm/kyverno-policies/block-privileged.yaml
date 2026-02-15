@@ -1,0 +1,31 @@
+# Disallow privileged containers (exempt kube-system, kyverno)
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: disallow-privileged-containers
+  annotations:
+    policies.kyverno.io/title: Disallow Privileged Containers
+spec:
+  validationFailureAction: Audit
+  background: false
+  rules:
+    - name: privileged-containers
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+      exclude:
+        any:
+          - resources:
+              namespaces:
+                - kube-system
+                - kyverno
+      validate:
+        message: Privileged mode is disallowed. Set securityContext.privileged to false or omit it.
+        deny:
+          conditions:
+            any:
+              - key: "{{ request.object.spec.containers[].securityContext.privileged }}"
+                operator: Equals
+                value: true

@@ -81,3 +81,4 @@ variable "argocd_ingress_hostname" {
   type        = string
   default     = "argocd.cloud-master-ai.com"
 }
+

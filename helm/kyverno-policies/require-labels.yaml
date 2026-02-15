@@ -1,0 +1,29 @@
+# Sample Kyverno ClusterPolicy: require app label on Pods
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: require-pod-labels
+  annotations:
+    policies.kyverno.io/title: Require Pod Labels
+spec:
+  validationFailureAction: Audit  # Start with Audit; set to Enforce when ready
+  background: false
+  rules:
+    - name: require-app-label
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+      exclude:
+        any:
+          - resources:
+              namespaces:
+                - kube-system
+                - kyverno
+      validate:
+        message: "Pods must have an 'app' label"
+        pattern:
+          metadata:
+            labels:
+              app: "?*"

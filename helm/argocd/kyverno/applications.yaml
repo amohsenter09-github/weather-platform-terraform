@@ -1,0 +1,175 @@
+# Argo CD Applications: deploy Kyverno to hub and each workload cluster
+# Apply after Argo CD is installed: kubectl apply -f helm/argocd/kyverno/
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kyverno-hub
+  namespace: argocd
+spec:
+  project: hub
+  source:
+    repoURL: https://kyverno.github.io/kyverno/
+    chart: kyverno
+    targetRevision: "3.3.3"
+    helm:
+      releaseName: kyverno
+      namespace: kyverno
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: kyverno
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kyverno-prod
+  namespace: argocd
+spec:
+  project: production
+  source:
+    repoURL: https://kyverno.github.io/kyverno/
+    chart: kyverno
+    targetRevision: "3.3.3"
+    helm:
+      releaseName: kyverno
+      namespace: kyverno
+  destination:
+    server: https://F34A6680DB27ABDBE242F4C47AA534A2.yl4.eu-west-1.eks.amazonaws.com
+    namespace: kyverno
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kyverno-dev
+  namespace: argocd
+spec:
+  project: development
+  source:
+    repoURL: https://kyverno.github.io/kyverno/
+    chart: kyverno
+    targetRevision: "3.3.3"
+    helm:
+      releaseName: kyverno
+      namespace: kyverno
+  destination:
+    server: https://8DC75C7A66ACEF04D7834ACCD553A9AE.gr7.eu-west-1.eks.amazonaws.com
+    namespace: kyverno
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kyverno-uat
+  namespace: argocd
+spec:
+  project: uat
+  source:
+    repoURL: https://kyverno.github.io/kyverno/
+    chart: kyverno
+    targetRevision: "3.3.3"
+    helm:
+      releaseName: kyverno
+      namespace: kyverno
+  destination:
+    server: https://238706E93E5AF8032A6F5799E6BAB58F.sk1.eu-west-1.eks.amazonaws.com
+    namespace: kyverno
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+---
+# ClusterPolicies – deploy to hub and each workload cluster (deploy after Kyverno is running)
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kyverno-policies-hub
+  namespace: argocd
+spec:
+  project: hub
+  source:
+    repoURL: https://github.com/amohsenter09-github/weather-platform-terraform.git
+    targetRevision: master
+    path: helm/kyverno-policies
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: ""
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kyverno-policies-prod
+  namespace: argocd
+spec:
+  project: production
+  source:
+    repoURL: https://github.com/amohsenter09-github/weather-platform-terraform.git
+    targetRevision: master
+    path: helm/kyverno-policies
+  destination:
+    server: https://F34A6680DB27ABDBE242F4C47AA534A2.yl4.eu-west-1.eks.amazonaws.com
+    namespace: ""
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kyverno-policies-dev
+  namespace: argocd
+spec:
+  project: development
+  source:
+    repoURL: https://github.com/amohsenter09-github/weather-platform-terraform.git
+    targetRevision: master
+    path: helm/kyverno-policies
+  destination:
+    server: https://8DC75C7A66ACEF04D7834ACCD553A9AE.gr7.eu-west-1.eks.amazonaws.com
+    namespace: ""
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kyverno-policies-uat
+  namespace: argocd
+spec:
+  project: uat
+  source:
+    repoURL: https://github.com/amohsenter09-github/weather-platform-terraform.git
+    targetRevision: master
+    path: helm/kyverno-policies
+  destination:
+    server: https://238706E93E5AF8032A6F5799E6BAB58F.sk1.eu-west-1.eks.amazonaws.com
+    namespace: ""
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
