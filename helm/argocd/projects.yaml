@@ -9,7 +9,7 @@ spec:
     - "*"
   destinations:
     - namespace: "*"
-      server: https://kubernetes.default.svc
+      server: https://8DC75C7A66ACEF04D7834ACCD553A9AE.gr7.eu-west-1.eks.amazonaws.com
   clusterResourceWhitelist:
     - group: "*"
       kind: "*"
@@ -25,7 +25,7 @@ spec:
     - "*"
   destinations:
     - namespace: "*"
-      server: https://kubernetes.default.svc
+      server: https://F34A6680DB27ABDBE242F4C47AA534A2.yl4.eu-west-1.eks.amazonaws.com
   clusterResourceWhitelist:
     - group: "*"
       kind: "*"
@@ -41,7 +41,7 @@ spec:
     - "*"
   destinations:
     - namespace: "*"
-      server: https://kubernetes.default.svc
+      server: https://238706E93E5AF8032A6F5799E6BAB58F.sk1.eu-west-1.eks.amazonaws.com
   clusterResourceWhitelist:
     - group: "*"
       kind: "*"
