@@ -1,0 +1,19 @@
+# Argo CD Applications for Argo Workflows (dev first, then uat/prod)
+# Prereq: argocd repo add https://argoproj.github.io/argo-helm --type helm --name argo
+---
+# apiVersion: argoproj.io/v1alpha1
+# kind: Application
+# metadata:
+#   name: argo-workflows-dev
+#   namespace: argocd
+# spec:
+#   project: development
+#   source:
+#     repoURL: https://argoproj.github.io/argo-helm
+#     chart: argo-workflows
+#     targetRevision: "x.x.x"
+#   destination:
+#     server: https://<dev-cluster>
+#     namespace: argo
+#   syncPolicy:
+#     automated: { prune: true, selfHeal: true }

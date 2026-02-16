@@ -1,0 +1,19 @@
+# Argo CD Applications for KServe (controller + dependencies)
+# Prereq: Install KServe CRDs and controller
+---
+# apiVersion: argoproj.io/v1alpha1
+# kind: Application
+# metadata:
+#   name: kserve-dev
+#   namespace: argocd
+# spec:
+#   project: development
+#   source:
+#     repoURL: https://github.com/kserve/kserve
+#     path: install
+#     targetRevision: v0.11.0
+#   destination:
+#     server: https://<dev-cluster>
+#     namespace: kserve-system
+#   syncPolicy:
+#     automated: { prune: true, selfHeal: true }

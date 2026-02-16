@@ -1,0 +1,3 @@
+# IRSA: IAM role for K8s service account – to implement
+# resource "aws_iam_role" "this" { ... }
+# resource "aws_iam_openid_connect_provider" ...
