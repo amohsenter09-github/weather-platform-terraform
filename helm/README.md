@@ -1,24 +1,34 @@
 ### Manual Helm deployments (not managed by Terraform)
 
-This folder is for **manual Helm installs** that you *do not* want Terraform to own (example: Argo CD).
+This folder is for **manual Helm installs** that you *do not* want Terraform to own.
 
-Terraform in `envs/dev/` still manages the cluster + core addons (AWS Load Balancer Controller, ExternalDNS, etc).
+| Folder       | Purpose                                                |
+|-------------|--------------------------------------------------------|
+| `argocd/`   | Argo CD install (GitOps controller on hub)            |
+| `kyverno/`  | Kyverno + policies (Argo CD Applications)             |
+
+Terraform in `envs/` manages clusters and core addons (AWS Load Balancer Controller, ExternalDNS, etc).
 
 ### Recommended workflow
 
 1) Connect kubectl to the cluster:
 
 ```bash
-export AWS_PROFILE=aws-personal-account
-aws eks update-kubeconfig --region eu-west-1 --name platform-dev-eks
+aws eks update-kubeconfig --region eu-west-2 --name platform-hub-eks
 kubectl get nodes
 ```
 
-2) Install a chart from one of the subfolders (example: Argo CD):
+2) Install Argo CD (hub):
 
 ```bash
 cd helm/argocd
 ./install.sh
+```
+
+3) Deploy Kyverno via Argo CD:
+
+```bash
+kubectl apply -f helm/kyverno/
 ```
 
 ### Helm state isolation (optional)

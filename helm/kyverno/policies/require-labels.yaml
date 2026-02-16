@@ -1,4 +1,4 @@
-# Sample Kyverno ClusterPolicy: require app label on Pods
+# Require app label on Pods (exempt kube-system, kyverno)
 apiVersion: kyverno.io/v1
 kind: ClusterPolicy
 metadata:

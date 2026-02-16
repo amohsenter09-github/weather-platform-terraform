@@ -8,6 +8,7 @@ Scripts for deploying and managing the platform infrastructure.
 - Terraform >= 1.6
 - kubectl
 - Helm 3
+- kustomize (for `verify-kustomize.sh`)
 
 ## Usage
 
@@ -44,6 +45,14 @@ Runs `terraform init`, `plan`, and `apply` for the chosen env.
 ```
 
 Runs both steps in sequence.
+
+### 4. Verify Kustomize builds
+
+```bash
+./scripts/verify-kustomize.sh
+```
+
+Runs `kustomize build` on all `kustomization.yaml` directories. Use in CI or before commits.
 
 ## After bootstrap
 
