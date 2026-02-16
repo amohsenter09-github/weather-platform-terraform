@@ -207,3 +207,69 @@ Step-by-step: **who** or **what** provides input at each stage until the model i
   [10] Inference ◄── [9] Registry ◄── [8] S3 artifacts ◄── [7] batch-trainer ◄─┘
        (KServe)         (optional)         model.joblib      [6] Trigger
 ```
+
+---
+
+## 7. Step-by-Step: How `http://&lt;alb&gt;/weather?city=Berlin` Becomes a Model
+
+There are **two different flows**. Only one leads to S3 and training.
+
+### Path A: Real-time (user request) – **does NOT go to S3**
+
+| Step | What happens |
+|------|--------------|
+| 1 | You call `http://<alb-hostname>/weather?city=Berlin` in a browser or with curl. |
+| 2 | ALB forwards the request to the Weather API pod. |
+| 3 | Weather API returns JSON, e.g. `{"city":"Berlin","temp":12,...}`. |
+| 4 | You receive that JSON. **End of flow.** Nothing is written to S3. |
+
+---
+
+### Path B: Batch collection for ML – **this writes to S3**
+
+This is a separate process that runs **on a schedule**, not when you hit the API yourself.
+
+| Step | Who/What | What happens |
+|------|----------|--------------|
+| **1** | **Data ingestion CronJob** | A Kubernetes CronJob runs every hour (or day). It is a pod that executes a script. |
+| **2** | **Script inside the CronJob** | The script calls the Weather API internally, e.g. `GET http://weather-api/weather?city=Berlin` (from inside the cluster). It gets the same JSON you would get. |
+| **3** | **Script writes to S3** | The script saves that JSON to the S3 raw bucket: `s3://platform-mlops-raw/raw/date=2025-02-06/berlin.json`. |
+| **4** | **S3 raw bucket** | Now the data is stored. Multiple runs over days = many JSON files. |
+| **5** | **Feature Job** | Another job (CronJob or Argo Workflow) runs. It reads all JSON files from S3 raw, computes features (e.g. rolling averages), and writes to S3 features: `s3://.../features/train.parquet`. |
+| **6** | **Training trigger** | A schedule (e.g. weekly) or manual trigger starts the training pipeline. |
+| **7** | **batch-trainer** | A Kubernetes Job runs. It reads S3 features, trains a scikit-learn model, and saves to S3 artifacts: `s3://.../artifacts/model.joblib`. |
+| **8** | **Inference** | KServe loads `model.joblib` from S3 and serves predictions via HTTP. |
+
+### Visual: Two paths side by side
+
+```
+PATH A (Real-time – no S3)              PATH B (Batch – for ML training)
+─────────────────────────               ────────────────────────────────
+
+  You (browser)                              CronJob pod (runs hourly)
+       │                                            │
+       │  GET /weather?city=Berlin                   │  GET /weather?city=Berlin
+       ▼                                            ▼
+  Weather API ◄────────────────────────────── Weather API
+       │                                            │
+       │  JSON response                             │  JSON response
+       ▼                                            ▼
+  You receive JSON                            Script writes to S3
+  (done)                                            │
+                                                    ▼
+                                              s3://.../raw/berlin.json
+                                                    │
+                                                    ▼
+                                              Feature Job → S3 features
+                                                    │
+                                                    ▼
+                                              batch-trainer → S3 artifacts
+                                                    │
+                                                    ▼
+                                              model.joblib
+```
+
+### Summary
+
+- **Path A**: Your API call → JSON back. No S3, no training.
+- **Path B**: A CronJob calls the API and saves responses to S3. Those stored files are what training uses. The CronJob is the “feeder” that copies API data into S3.
